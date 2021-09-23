@@ -1,15 +1,7 @@
-const React = require("react")
+import React from "../../lib/react-preact"
 import cxs from 'cxs/component'
 
 const merge = require("deepmerge")
-
-/**
- * NOTE: Remember, the strategy is to create
- * every component as if it is a React Native
- * component, wherever possible. Consequently,
- * in here there's a bit of wrangling to
- * "convert" RN into (P)React components.
- */
 
 const _Base = (props) => {
   let newProps = {...props}
