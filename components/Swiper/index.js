@@ -1,82 +1,116 @@
-import { React, h, Component, createRef } from "../../lib/react-preact"
+import { h, Component, createRef } from "../../lib/react-preact"
 import { View } from "../View"
 import cxs from "cxs/component"
+
+import { mergeDeep } from "../../lib"
+
 
 class Swiper extends Component {
   constructor(props) {
     super(props)
     this.ref = createRef()
-    this.handleDragStart = this.handleDragStart.bind(this)
-    this.handleDragEnd = this.handleDragEnd.bind(this)
-    this.nullSwipe = this.nullSwipe.bind(this)
+    this.handleSwipeStart = this.handleSwipeStart.bind(this)
+    this.handleSwipeEnd = this.handleSwipeEnd.bind(this)
+    this.handleSwipeCancel = this.handleSwipeCancel.bind(this)
+    this.handleSwipeMove = this.handleSwipeMove.bind(this)
+    this.addListeners = this.addListeners.bind(this)
+    this.removeListeners = this.removeListeners.bind(this)
+    this.coords = this.coords.bind(this)
     this.state = {
       dragging: false,
-      firstTouch: { x: 0, y: 0 },
+      startCoords: { x: 0, y: 0 },
       loading: true,
-      threshold: 50,
+      threshold: props.threshold || 50,
     }
   }
 
-  nullSwipe(e) { }
+  addListeners() {
+    document.addEventListener("mouseup", this.handleSwipeEnd, false)
+    document.addEventListener("touchcancel", this.handleSwipeCancel, false)
+    document.addEventListener("mousemove", this.handleSwipeMove, false)
+    document.addEventListener("touchmove", this.handleSwipeMove, false)
+  }
 
-  handleDragStart(e) {
+  removeListeners() {
+    document.removeEventListener("mouseup", this.handleSwipeEnd)
+    document.removeEventListener("touchcancel", this.handleSwipeCancel)
+    document.removeEventListener("mousemove", this.handleSwipeMove)
+    document.removeEventListener("touchmove", this.handleSwipeMove)
+  }
+
+  coords(e) {
+    // Find the coords within a touch or mouse event.
+    return {
+      x: e.clientX || e.changedTouches[0].clientX,
+      y: e.clientY || e.changedTouches[0].clientY
+    }
+  }
+
+  handleSwipeStart(e) {
+    // FIXME Need to let touch/click/etc events through to e.g. links.
     e.preventDefault()
-    window.document.addEventListener("dragend", this.handleDragEnd, false)
-    window.document.addEventListener("mouseup", this.handleDragEnd, false)
+    const { x, y } = this.coords(e)
+    this.addListeners()
     this.setState(function(state,props) {
-      return {
-        dragging: true,
-        firstTouch: {
-          x: e.clientX,
-          y: e.clientY
-        }
-      }
+      return { startCoords: { x, y } }
     })
   }
 
-  handleDragEnd(e) {
+  handleSwipeEnd(e) {
     e.preventDefault()
-    this.setState(function(state,props) {
-      return { dragging: false }
-    })
-    window.document.removeEventListener("dragend", this.handleDragEnd)
-    window.document.removeEventListener("mouseup", this.handleDragEnd)
-
-    const xSwipe = this.state.firstTouch.x - e.clientX > 0 ? this.props.left || this.nullSwipe : this.props.right || this.nullSwipe
-    const xDeltaSigned = this.state.firstTouch.x - e.clientX
+    const { x, y } = this.coords(e)
+    const xSwipe = this.state.startCoords.x - x > 0 ? this.props.left : this.props.right
+    const xDeltaSigned = this.state.startCoords.x - x
     const xDelta = xDeltaSigned < 0 ? xDeltaSigned * -1 : xDeltaSigned
-    const ySwipe = this.state.firstTouch.y - e.clientY > 0 ? this.props.up || this.nullSwipe : this.props.down || this.nullSwipe
-    const yDeltaSigned = this.state.firstTouch.y - e.clientY
+    const ySwipe = this.state.startCoords.y - y > 0 ? this.props.up : this.props.down
+    const yDeltaSigned = this.state.startCoords.y - y
     const yDelta = yDeltaSigned < 0 ? yDeltaSigned * -1 : yDeltaSigned
     if (xDelta > this.state.threshold) {
-      xSwipe()
+      xSwipe && xSwipe()
     }
     if (yDelta > this.state.threshold) {
-      ySwipe()
+      ySwipe && ySwipe()
     }
+    this.setState({ dragging: false })
+    this.removeListeners()
+  }
+
+  handleSwipeCancel(e) {
+    e.preventDefault()
+    this.setState({ dragging: false })
+    this.removeListeners()
+  }
+
+  handleSwipeMove(e) {
+    // Prevent some console noise, see
+    // https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
+    if (e.type == "mousemove") { e.preventDefault() }
+    this.setState({ dragging: true })
   }
 
   componentDidMount() {
-    if (this.props.threshold) {
-      this.setState(function(state,props) {
-        console.log("Fixing threshold in state")
-        return { threshold: this.props.threshold }
-      })
-    }
-    this.setState(function(state,props) {
-      return { loading: false }
-    })
-    console.log(this.ref)
+    this.setState({ loading: false })
+  }
+
+  componentDidUnmount() {
+    this.removeListeners()
   }
 
   render() {
+    if (this.state.loading) { return null }
     return (
-      <div
+      <View
         ref={this.ref}
-        style={this.props.style}
+        style={ mergeDeep({}, {touchAction: "pan-x pan-y pinch-zoom"}, this.props.style) }
         draggable="true"
-        ondragstart={this.handleDragStart}
-        >{this.props.children}</div>
+
+        ondragstart={this.handleSwipeStart}
+        ondragend={this.handleSwipeEnd}
+
+        ontouchstart={this.handleSwipeStart}
+        ontouchend={this.handleSwipeEnd}
+
+        >{this.props.children}</View>
     )
   }
 }
