@@ -1,5 +1,4 @@
 import { React, h, Component } from "../../lib/react-preact"
-import cxs from "cxs/component"
 import { View } from "../View"
 
 
@@ -18,23 +17,19 @@ class Link extends Component {
     }
   }
 
-  render(props) {
-    let p = {...this.props}
-    const url = (p || {}).href || (p || {}).url
-    delete(p.href)
-    delete(p.url)
+  render() {
+    let newProps = {...this.props}
+    const url = (newProps || {}).href || (newProps || {}).url
+    delete(newProps.href)
+    delete(newProps.url)
 
     return (
-      <_Link onClick={this.handleClickLink.bind(this,url)} {...p}>
-        {p.children}
-      </_Link>
+      <View onClick={this.handleClickLink.bind(this,url)} {...newProps}>
+        {this.props.children}
+      </View>
     )
   }
 }
-
-const _Link = cxs(View)(function(props) {
-  return props.theme.link
-})
 
 export default Link
 export { Link }
