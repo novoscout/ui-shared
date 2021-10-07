@@ -105,7 +105,8 @@ class Swiper extends Component {
 
     if (xDelta > this.state.startThreshold || yDelta > this.state.startThreshold) {
       this.props.move && this.props.move(
-        e, direction, {
+        {
+          direction: direction,
           start: this.state.startCoords,
           x: direction.left || direction.right ? x : this.state.startCoords.x,
           y: direction.up || direction.down ? y : this.state.startCoords.y
