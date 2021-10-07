@@ -1,8 +1,5 @@
 import { h, Component, createRef } from "../../lib/react-preact"
 import { View } from "../View"
-import cxs from "cxs/component"
-
-import { mergeDeep } from "../../lib"
 
 
 class Swiper extends Component {
@@ -15,77 +12,106 @@ class Swiper extends Component {
     this.handleSwipeMove = this.handleSwipeMove.bind(this)
     this.addListeners = this.addListeners.bind(this)
     this.removeListeners = this.removeListeners.bind(this)
-    this.coords = this.coords.bind(this)
+    this.pointerCoords = this.pointerCoords.bind(this)
     this.state = {
-      dragging: false,
-      startCoords: { x: 0, y: 0 },
       loading: true,
-      threshold: props.threshold || 50,
+      allowSwipeX: true,
+      allowSwipeY: true,
+      startCoords: { x: 0, y: 0 },
+      startThreshold: props.startThreshold || 50,
+      endThreshold: props.endThreshold || 100,
     }
   }
 
-  addListeners() {
-    document.addEventListener("mouseup", this.handleSwipeEnd, false)
-    document.addEventListener("touchcancel", this.handleSwipeCancel, false)
-    document.addEventListener("mousemove", this.handleSwipeMove, false)
-    document.addEventListener("touchmove", this.handleSwipeMove, false)
-  }
-
-  removeListeners() {
-    document.removeEventListener("mouseup", this.handleSwipeEnd)
-    document.removeEventListener("touchcancel", this.handleSwipeCancel)
-    document.removeEventListener("mousemove", this.handleSwipeMove)
-    document.removeEventListener("touchmove", this.handleSwipeMove)
-  }
-
-  coords(e) {
-    // Find the coords within a touch or mouse event.
+  pointerCoords(e) {
+    // Find the pointerCoords within a touch or mouse event.
     return {
       x: e.clientX || e.changedTouches[0].clientX,
       y: e.clientY || e.changedTouches[0].clientY
     }
   }
 
+  addListeners() {
+    this.base.addEventListener("mouseup", this.handleSwipeEnd)
+    this.base.addEventListener("touchcancel", this.handleSwipeCancel)
+    this.base.addEventListener("mousemove", this.handleSwipeMove)
+    this.base.addEventListener("touchmove", this.handleSwipeMove)
+  }
+
+  removeListeners() {
+    this.base.removeEventListener("mouseup", this.handleSwipeEnd)
+    this.base.removeEventListener("touchcancel", this.handleSwipeCancel)
+    this.base.removeEventListener("mousemove", this.handleSwipeMove)
+    this.base.removeEventListener("touchmove", this.handleSwipeMove)
+  }
+
   handleSwipeStart(e) {
-    // FIXME Need to let touch/click/etc events through to e.g. links.
-    e.preventDefault()
-    const { x, y } = this.coords(e)
+    // e.preventDefault()
+    const { x, y } = this.pointerCoords(e)
     this.addListeners()
     this.setState(function(state,props) {
-      return { startCoords: { x, y } }
+      return {
+        startCoords: { x: x, y: y }
+      }
     })
+    this.props.start && this.props.start(e)
   }
 
   handleSwipeEnd(e) {
-    e.preventDefault()
-    const { x, y } = this.coords(e)
-    const xSwipe = this.state.startCoords.x - x > 0 ? this.props.left : this.props.right
-    const xDeltaSigned = this.state.startCoords.x - x
-    const xDelta = xDeltaSigned < 0 ? xDeltaSigned * -1 : xDeltaSigned
-    const ySwipe = this.state.startCoords.y - y > 0 ? this.props.up : this.props.down
-    const yDeltaSigned = this.state.startCoords.y - y
-    const yDelta = yDeltaSigned < 0 ? yDeltaSigned * -1 : yDeltaSigned
-    if (xDelta > this.state.threshold) {
-      xSwipe && xSwipe()
-    }
-    if (yDelta > this.state.threshold) {
-      ySwipe && ySwipe()
-    }
-    this.setState({ dragging: false })
+    // e.preventDefault()
     this.removeListeners()
+    this.setState({ allowSwipeX: true, allowSwipeY: true })
+    this.props.end && this.props.end()
   }
 
   handleSwipeCancel(e) {
-    e.preventDefault()
-    this.setState({ dragging: false })
+    // e.preventDefault()
     this.removeListeners()
+    this.setState({ allowSwipeX: true, allowSwipeY: true })
+    this.props.cancel && this.props.cancel()
   }
 
   handleSwipeMove(e) {
-    // Prevent some console noise, see
-    // https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
-    if (e.type == "mousemove") { e.preventDefault() }
-    this.setState({ dragging: true })
+    const { x, y } = this.pointerCoords(e)
+    const xDeltaSigned = this.state.startCoords.x - x
+    const xDelta = xDeltaSigned < 0 ? xDeltaSigned * -1 : xDeltaSigned
+    const yDeltaSigned = this.state.startCoords.y - y
+    const yDelta = yDeltaSigned < 0 ? yDeltaSigned * -1 : yDeltaSigned
+
+    this.props.shouldPreventDefault &&
+      this.props.shouldPreventDefault({
+        start: this.state.startCoords,
+        x: x, y: y,
+        xDelta: xDelta,
+        yDelta: yDelta
+      }) && e.preventDefault()
+
+    // If reporting of only one axis at a time was requested,
+    // only report whichever moved the most.
+    if (this.props.uniaxial && this.state.allowSwipeX != false && this.state.allowSwipeY != false) {
+      if (xDelta > yDelta) {
+        this.setState(function(state,props){return{allowSwipeY:false}})
+      } else if (xDelta < yDelta) {
+        this.setState(function(state,props){return{allowSwipeX:false}})
+      }
+    }
+
+    const direction = {
+      left: this.state.allowSwipeX && this.state.startCoords.x > x,
+      right: this.state.allowSwipeX && this.state.startCoords.x < x,
+      up: this.state.allowSwipeY && this.state.startCoords.y > y,
+      down: this.state.allowSwipeY && this.state.startCoords.y < y
+    }
+
+    if (xDelta > this.state.startThreshold || yDelta > this.state.startThreshold) {
+      this.props.move && this.props.move(
+        e, direction, {
+          start: this.state.startCoords,
+          x: direction.left || direction.right ? x : this.state.startCoords.x,
+          y: direction.up || direction.down ? y : this.state.startCoords.y
+        }
+      )
+    }
   }
 
   componentDidMount() {
@@ -98,26 +124,34 @@ class Swiper extends Component {
 
   render() {
     if (this.state.loading) { return null }
+    //    draggable="true"
+    //    ondragstart={this.handleSwipeStart}
+    //    ondragend={this.handleSwipeEnd}
+
+    // const newProps = this.props;
+    // newProps.uniaxial = null;
+
     return (
       <View
         ref={this.ref}
-        style={ mergeDeep({}, {touchAction: "pan-x pan-y pinch-zoom"}, this.props.style) }
-        draggable="true"
-
-        ondragstart={this.handleSwipeStart}
-        ondragend={this.handleSwipeEnd}
-
         ontouchstart={this.handleSwipeStart}
         ontouchend={this.handleSwipeEnd}
-
-        >{this.props.children}</View>
+        {...this.props}>
+        {this.props.children}
+      </View>
     )
   }
 }
 
-const _Swiper = cxs(View)(function(props) {
-  return props.theme.swiper
-})
+const _Inner = (props) => {
+  return (
+    <View {...props}>
+      {props.children}
+    </View>
+  )
+}
+
+Swiper.Inner = _Inner
 
 export default Swiper
 export { Swiper }
