@@ -129,15 +129,16 @@ class Swiper extends Component {
     //    ondragstart={this.handleSwipeStart}
     //    ondragend={this.handleSwipeEnd}
 
-    // const newProps = this.props;
-    // newProps.uniaxial = null;
+    const newProps = {...this.props}
+    delete(newProps.uniaxial)
 
     return (
       <View
         ref={this.ref}
         ontouchstart={this.handleSwipeStart}
         ontouchend={this.handleSwipeEnd}
-        {...this.props}>
+        {...newProps}
+        >
         {this.props.children}
       </View>
     )
