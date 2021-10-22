@@ -1,6 +1,5 @@
 import { React, h, Component } from "../../lib/react-preact"
-import { View } from "../View"
-import { mergeDeep } from "../../lib"
+
 
 class TextLink extends Component {
   constructor(props) {
@@ -9,20 +8,16 @@ class TextLink extends Component {
 
   render() {
     let newProps = {...this.props}
-    const url = (newProps || {}).href || (newProps || {}).url || (newProps || {}).uri
+    const href = (newProps || {}).href || (newProps || {}).url ||
+          (newProps || {}).uri
     delete(newProps.href)
     delete(newProps.url)
     delete(newProps.uri)
 
     delete(newProps.style)
 
-    const style = mergeDeep(
-      this.props.style || {},
-      {cursor:"pointer"}
-    )
-
     return (
-      <a style={style} href={url} {...newProps}>
+      <a style={this.props.style} href={href} {...newProps}>
         {this.props.children}
       </a>
     )

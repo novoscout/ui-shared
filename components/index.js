@@ -1,49 +1,37 @@
 // The root template component.
 import { View } from "./View"
 
-// Simple components.
-// import { Button } from "./Button"
-// import { Image } from "./Image"
-// import { StyleSheet } from "./StyleSheet"
-// import { Switch } from "./Switch"
+// FIXME TODO: Button, Grid, Image, StyleSheet, Switch
+import { Link } from "./Link"
+import { Nav } from "./Nav"
 import { Text } from "./Text"
 import { TextInput } from "./TextInput"
-// import { View } from "./View"
-
-// Composed components.
-// import { Demo } from "./Demo"
-// import { Grid } from "./Grid"
-import { Link } from "./Link"
 import { TextLink } from "./TextLink"
 import { Swiper } from "./Swiper"
 
-const dflt = {
-  View: View,
-
-  // Button: Button,
-  // Image: Image,
+const exp = {
+  // Button: Button, Grid: Grid, Image: Image,
+  Link: Link,
+  Nav: Nav,
   // StyleSheet: StyleSheet,
+  Swiper: Swiper,
   // Switch: Switch,
   Text: Text,
   TextInput: TextInput,
-  // View: View,
-
-  // Demo: Demo,
-  // Grid: Grid,
-  Link: Link,
   TextLink: TextLink,
-  Swiper: Swiper
+  View: View,
 }
 
-export default dflt
+export default exp
 export {
-  View,
-  // Button, Image, StyleSheet, Switch,
+  // Button, Grid, Image
+  Link,
+  Nav,
+  // StyleSheet,
+  Swiper,
+  // Switch,
   Text,
   TextInput,
-  // View,
-  // Demo, Grid,
-  Link,
   TextLink,
-  Swiper
+  View,
 }

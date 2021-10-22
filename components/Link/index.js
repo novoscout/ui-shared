@@ -19,12 +19,13 @@ class Link extends Component {
 
   render() {
     let newProps = {...this.props}
+    delete(newProps.style)
     const url = (newProps || {}).href || (newProps || {}).url
     delete(newProps.href)
     delete(newProps.url)
 
     return (
-      <View onClick={this.handleClickLink.bind(this,url)} {...newProps}>
+      <View style={this.props.style} onClick={this.handleClickLink.bind(this,url)} {...newProps}>
         {this.props.children}
       </View>
     )
