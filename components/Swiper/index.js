@@ -97,10 +97,10 @@ class Swiper extends Component {
     }
 
     const direction = {
-      left: this.state.allowSwipeX && this.state.startCoords.x > x,
-      right: this.state.allowSwipeX && this.state.startCoords.x < x,
-      up: this.state.allowSwipeY && this.state.startCoords.y > y,
-      down: this.state.allowSwipeY && this.state.startCoords.y < y
+      left: this.state.allowSwipeX && x < this.state.startCoords.x,
+      right: this.state.allowSwipeX && x > this.state.startCoords.x,
+      up: this.state.allowSwipeY && y < this.state.startCoords.y,
+      down: this.state.allowSwipeY && y > this.state.startCoords.y
     }
 
     if (xDelta > this.state.startThreshold || yDelta > this.state.startThreshold) {
