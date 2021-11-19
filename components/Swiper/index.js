@@ -1,11 +1,10 @@
-import { h, Component, createRef } from "../../lib/react-preact"
+import { h, Component } from "../../lib/react-preact"
 import { View } from "../View"
 
 
 class Swiper extends Component {
   constructor(props) {
     super(props)
-    this.ref = createRef()
     this.handleSwipeStart = this.handleSwipeStart.bind(this)
     this.handleSwipeEnd = this.handleSwipeEnd.bind(this)
     this.handleSwipeCancel = this.handleSwipeCancel.bind(this)
@@ -26,8 +25,8 @@ class Swiper extends Component {
   pointerCoords(e) {
     // Find the pointerCoords within a touch or mouse event.
     return {
-      x: e.clientX || e.changedTouches[0].clientX,
-      y: e.clientY || e.changedTouches[0].clientY
+      x: e.clientX || e.changedTouches[0].clientX || 0,
+      y: e.clientY || e.changedTouches[0].clientY || 0
     }
   }
 
@@ -51,24 +50,30 @@ class Swiper extends Component {
     this.addListeners()
     this.setState(function(state,props) {
       return {
-        startCoords: { x: x, y: y }
+        startCoords: { x, y }
       }
     })
-    this.props.start && this.props.start(e)
+    if (this.props && this.props.start) {
+      this.props.start()
+    }
   }
 
   handleSwipeEnd(e) {
     // e.preventDefault()
     this.removeListeners()
     this.setState({ allowSwipeX: true, allowSwipeY: true })
-    this.props.end && this.props.end()
+    if (this.props && this.props.end) {
+      this.props.end()
+    }
   }
 
   handleSwipeCancel(e) {
     // e.preventDefault()
     this.removeListeners()
     this.setState({ allowSwipeX: true, allowSwipeY: true })
-    this.props.cancel && this.props.cancel()
+    if (this.props && this.props.cancel) {
+      this.props.cancel()
+    }
   }
 
   handleSwipeMove(e) {
@@ -78,21 +83,22 @@ class Swiper extends Component {
     const yDeltaSigned = this.state.startCoords.y - y
     const yDelta = yDeltaSigned < 0 ? yDeltaSigned * -1 : yDeltaSigned
 
-    this.props.shouldPreventDefault &&
+    if (this.props && this.props.shouldPreventDefault) {
       this.props.shouldPreventDefault({
         start: this.state.startCoords,
         x: x, y: y,
         xDelta: xDelta,
         yDelta: yDelta
       }) && e.preventDefault()
+    }
 
     // If reporting of only one axis at a time was requested,
     // only report whichever moved the most.
-    if (this.props.uniaxial && this.state.allowSwipeX != false && this.state.allowSwipeY != false) {
+    if ((this.props || {}).uniaxial && this.state.allowSwipeX != false && this.state.allowSwipeY != false) {
       if (xDelta > yDelta) {
-        this.setState(function(state,props){return{allowSwipeY:false}})
+        this.setState(function(state,props){return{allowSwipeY:false}});
       } else if (xDelta < yDelta) {
-        this.setState(function(state,props){return{allowSwipeX:false}})
+        this.setState(function(state,props){return{allowSwipeX:false}});
       }
     }
 
@@ -104,14 +110,14 @@ class Swiper extends Component {
     }
 
     if (xDelta > this.state.startThreshold || yDelta > this.state.startThreshold) {
-      this.props.move && this.props.move(
-        {
+      if (this.props && this.props.move) {
+        this.props.move({
           direction: direction,
           start: this.state.startCoords,
           x: direction.left || direction.right ? x : this.state.startCoords.x,
           y: direction.up || direction.down ? y : this.state.startCoords.y
-        }
-      )
+        })
+      }
     }
   }
 
@@ -119,29 +125,34 @@ class Swiper extends Component {
     this.setState({ loading: false })
   }
 
-  componentDidUnmount() {
+  componentWillUnmount() {
     this.removeListeners()
   }
 
   render() {
     if (this.state.loading) { return null }
-    //    draggable="true"
-    //    ondragstart={this.handleSwipeStart}
-    //    ondragend={this.handleSwipeEnd}
 
+    // Note to self: previous approach using HTML5 "draggable"
+    // was more trouble than it was worth.
+
+    // Remove some props to prevent them appearing in HTML.
     const newProps = {...this.props}
-    delete(newProps.style)
     delete(newProps.uniaxial)
+    delete(newProps.startThreshold)
+    delete(newProps.endThreshold)
+    delete(newProps.start)
+    delete(newProps.end)
+    delete(newProps.cancel)
+    delete(newProps.move)
+    delete(newProps.shouldPreventDefault)
 
     return (
       <View
-        ref={this.ref}
-        style={this.props.style}
         ontouchstart={this.handleSwipeStart}
         ontouchend={this.handleSwipeEnd}
         {...newProps}
         >
-        {this.props.children}
+        {newProps.children}
       </View>
     )
   }
