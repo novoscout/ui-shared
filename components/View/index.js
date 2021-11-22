@@ -1,13 +1,18 @@
 import { React, h } from "../../lib/react-preact"
 
 const View = (props) => {
-  let newProps = {...props}
-  const elem = newProps.elem ? String(newProps.elem).toLowerCase() : "div"
+  const elem = props.elem ? String(props.elem) : "div"
 
   // Remove items that otherwise will end up in HTML.
+  let newProps = {...props}
+
   delete newProps.elem
 
-  return React.createElement(String(elem), newProps)
+  // Used by preact-router:
+  delete newProps.default
+  delete newProps.url
+
+  return React.createElement(elem, newProps)
 }
 
 export default View
