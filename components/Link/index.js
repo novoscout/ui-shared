@@ -25,7 +25,7 @@ class Link extends Component {
     delete(newProps.url)
 
     return (
-      <View style={this.props.style} onClick={this.handleClickLink.bind(this,url)} {...newProps}>
+      <View style={this.props.style} onclick={this.handleClickLink.bind(this,url)} {...newProps}>
         {this.props.children}
       </View>
     )

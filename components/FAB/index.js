@@ -37,7 +37,7 @@ class FAB extends Component {
 
     return (
       <View
-        onClick={this.handleToggle}
+        onclick={this.handleToggle}
         style={this.props.style}
         {...newProps}>
         {this.props.children}

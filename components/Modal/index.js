@@ -35,9 +35,9 @@ class Modal extends Component {
     delete(newProps.style)
     delete(newProps.visible)
 
+    // onclick={this.handleToggle}
     return (
       <View
-        // onClick={this.handleToggle}
         style={this.props.style}
         {...newProps}>
         {this.props.children}
