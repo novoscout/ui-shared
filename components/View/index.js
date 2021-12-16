@@ -8,10 +8,6 @@ const View = (props) => {
 
   delete newProps.elem
 
-  // Used by preact-router:
-  delete newProps.default
-  delete newProps.url
-
   return React.createElement(elem, newProps)
 }
 

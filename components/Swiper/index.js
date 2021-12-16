@@ -135,24 +135,13 @@ class Swiper extends Component {
     // Note to self: previous approach using HTML5 "draggable"
     // was more trouble than it was worth.
 
-    // Remove some props to prevent them appearing in HTML.
-    const newProps = {...this.props}
-    delete(newProps.uniaxial)
-    delete(newProps.startThreshold)
-    delete(newProps.endThreshold)
-    delete(newProps.start)
-    delete(newProps.end)
-    delete(newProps.cancel)
-    delete(newProps.move)
-    delete(newProps.shouldPreventDefault)
-
     return (
       <View
         ontouchstart={this.handleSwipeStart}
         ontouchend={this.handleSwipeEnd}
-        {...newProps}
+        className={this.props && this.props.className || null}
         >
-        {newProps.children}
+        {this.props.children}
       </View>
     )
   }
