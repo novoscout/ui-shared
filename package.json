@@ -7,6 +7,7 @@
   "scripts": {},
   "devDependencies": {},
   "dependencies": {
+    "@babel/plugin-transform-regenerator": "^7.16.5",
     "css-color-names": "^1.0.1",
     "deepmerge": "^4.2.2",
     "known-css-properties": "^0.23.0",
