@@ -157,9 +157,11 @@ class Swiper extends Component {
 
     return (
       <View
+        id={this.props.id}
         ontouchstart={this.handleSwipeStart}
         ontouchend={this.handleSwipeEnd}
-        className={this.props && this.props.className || null}
+        className={this.props.className}
+        style={this.props.style}
         >
         {this.props.children}
       </View>
