@@ -76,37 +76,57 @@ class Swiper extends Component {
     }
   }
 
-  handleSwipeMove(e) {
+  async handleSwipeMove(e) {
     const { x, y } = this.pointerCoords(e)
     const xDeltaSigned = this.state.startCoords.x - x
     const xDelta = xDeltaSigned < 0 ? xDeltaSigned * -1 : xDeltaSigned
     const yDeltaSigned = this.state.startCoords.y - y
     const yDelta = yDeltaSigned < 0 ? yDeltaSigned * -1 : yDeltaSigned
 
+    // // If reporting of only one axis at a time was requested,
+    // // only report whichever moved the most.
+    // if ((this.props || {}).uniaxial && this.state.allowSwipeX != false && this.state.allowSwipeY != false) {
+    //   if (xDelta > yDelta) {
+    //     await this.setState({allowSwipeY:false});
+    //   } else if (xDelta < yDelta) {
+    //     await this.setState({allowSwipeX:false});
+    //   }
+    // }
+    // const direction = {
+    //   left: this.state.allowSwipeX && x < this.state.startCoords.x,
+    //   right: this.state.allowSwipeX && x > this.state.startCoords.x,
+    //   up: this.state.allowSwipeY && y < this.state.startCoords.y,
+    //   down: this.state.allowSwipeY && y > this.state.startCoords.y
+    // }
+
+    const direction = {}
+    if (this.props.uniaxial) {
+      if (xDelta > yDelta) {
+        direction["left"] = x < this.state.startCoords.x
+        direction["right"] = x > this.state.startCoords.x
+        direction["up"] = false
+        direction["down"] = false
+      } else if (yDelta > xDelta) {
+        direction["left"] = false
+        direction["right"] = false
+        direction["up"] = y < this.state.startCoords.y
+        direction["down"] = y > this.state.startCoords.y
+      }
+    } else {
+      direction["left"] = x < this.state.startCoords.x
+      direction["right"] = x > this.state.startCoords.x
+      direction["up"] = y < this.state.startCoords.y
+      direction["down"] = y > this.state.startCoords.y
+    }
+
     if (this.props && this.props.shouldPreventDefault) {
       this.props.shouldPreventDefault({
         start: this.state.startCoords,
-        x: x, y: y,
-        xDelta: xDelta,
-        yDelta: yDelta
+        direction,
+        x, y, xDelta, yDelta,
+        allowSwipeX: this.state.allowSwipeX,
+        allowSwipeY: this.state.allowSwipeY,
       }) && e.preventDefault()
-    }
-
-    // If reporting of only one axis at a time was requested,
-    // only report whichever moved the most.
-    if ((this.props || {}).uniaxial && this.state.allowSwipeX != false && this.state.allowSwipeY != false) {
-      if (xDelta > yDelta) {
-        this.setState(function(state,props){return{allowSwipeY:false}});
-      } else if (xDelta < yDelta) {
-        this.setState(function(state,props){return{allowSwipeX:false}});
-      }
-    }
-
-    const direction = {
-      left: this.state.allowSwipeX && x < this.state.startCoords.x,
-      right: this.state.allowSwipeX && x > this.state.startCoords.x,
-      up: this.state.allowSwipeY && y < this.state.startCoords.y,
-      down: this.state.allowSwipeY && y > this.state.startCoords.y
     }
 
     if (xDelta > this.state.startThreshold || yDelta > this.state.startThreshold) {
