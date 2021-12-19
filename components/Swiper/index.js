@@ -162,6 +162,7 @@ class Swiper extends Component {
         ontouchend={this.handleSwipeEnd}
         className={this.props.className}
         style={this.props.style}
+        ref={this.props.ref}
         >
         {this.props.children}
       </View>
