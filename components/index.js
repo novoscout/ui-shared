@@ -2,6 +2,7 @@
 import { View } from "./View"
 
 // FIXME TODO: Button, Grid, Image, StyleSheet, Switch
+import { Button } from "./Button"
 import { FAB } from "./FAB"
 import { Ident } from "./Ident"
 import { Link } from "./Link"
@@ -14,25 +15,27 @@ import { Toolbar } from "./Toolbar"
 import { Swiper } from "./Swiper"
 
 const exp = {
-  // Button: Button, Grid: Grid, Image: Image,
-  FAB: FAB,
-  Ident: Ident,
-  Link: Link,
-  Modal: Modal,
-  Nav: Nav,
-  // StyleSheet: StyleSheet,
-  Swiper: Swiper,
-  // Switch: Switch,
-  Text: Text,
-  TextInput: TextInput,
-  // TextLink: TextLink,
-  Toolbar: Toolbar,
-  View: View,
+  Button,
+  // Grid: Grid, Image: Image,
+  FAB,
+  Ident,
+  Link,
+  Modal,
+  Nav,
+  // StyleSheet,
+  Swiper,
+  // Switch,
+  Text,
+  TextInput,
+  // TextLink,
+  Toolbar,
+  View,
 }
 
 export default exp
 export {
-  // Button, Grid, Image
+  Button,
+  // Grid, Image
   FAB,
   Ident,
   Link,
