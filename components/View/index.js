@@ -4,7 +4,8 @@ const View = (props) => {
   const elem = props.elem ? String(props.elem) : "div"
 
   // Remove props items that otherwise will end up in HTML.
-  const { elem:{}, ...newProps } = props
+  const newProps = { ...props }
+  delete(newProps.elem)
 
   return React.createElement(elem, newProps)
 }
