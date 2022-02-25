@@ -5,7 +5,6 @@ import { View } from "./View"
 import { FAB } from "./FAB"
 import { Link } from "./Link"
 import { Nav } from "./Nav"
-import { Toolbar } from "./Toolbar"
 import { Swiper } from "./Swiper"
 
 export default {
@@ -13,15 +12,13 @@ export default {
   Link,
   Nav,
   Swiper,
-  Toolbar,
   View,
 }
 
 export {
   FAB,
-  Ident,
+  Link,
   Nav,
   Swiper,
-  Toolbar,
   View,
 }
