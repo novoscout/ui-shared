@@ -1,13 +1,10 @@
 import { React, h } from "../../lib/react-preact"
 
 const View = (props) => {
-  const elem = props.elem ? String(props.elem) : "div"
-
   // Remove props items that otherwise will end up in HTML.
-  const newProps = { ...props }
-  delete(newProps.elem)
+  const { elem, theme, ...newProps } = props
 
-  return React.createElement(elem, newProps)
+  return React.createElement(elem ? elem : "div", newProps)
 }
 
 export default View

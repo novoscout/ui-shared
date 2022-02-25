@@ -1,3 +1,5 @@
+// FIXME See ui-web/src/components/TextLink
+
 import { React, h, Component } from "../../lib/react-preact"
 import { View } from "../View"
 
